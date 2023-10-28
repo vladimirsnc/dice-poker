@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+    nginx-dice-poker:
+        image: nginx:1.21.5
+        container_name: dice-poker-nginx
+        ports:
+            - "80:80"
+        volumes:
+            - .:/var/www
+            - ./docker/nginx/dice-poker.local.conf:/etc/nginx/conf.d/dice-poker.local.conf
+        depends_on:
+            - php-dice-poker
+        networks:
+            - dice-poker
+
+    php-dice-poker:
+        build:
+            context: .
+            dockerfile: ./docker/php/Dockerfile
+        container_name: dice-poker-php
+        ports:
+            - "9000:9000"
+        volumes:
+            - .:/var/www
+            - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - dice-poker
+
+#    mysql-dice-poker:
+#        image: mariadb
+#        container_name: dice-poker-mysql
+#        ports:
+#          - "3306:3306"
+#        # restart: always
+#        volumes:
+#          - ./docker/mysql:/var/lib/mysql
+#          - ./docker/backups:/var/backups
+#        environment:
+#          MYSQL_ROOT_PASSWORD: dice-poker
+#          MYSQL_PASSWORD: dice-poker
+#          MYSQL_USER: dice-poker
+#          MYSQL_DATABASE: dice-poker
+#        networks:
+#          - dice-poker
+
+networks:
+  dice-poker:
+    driver: bridge
+    name: dice-poker
